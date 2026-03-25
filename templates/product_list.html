@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahsulotlar ro‘yxati</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .categories {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .categories ul {
+            display: inline-flex;
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .categories li {
+            background: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .categories li:hover {
+            background: #0056b3;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .price {
+            color: green;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* JavaScript bilan filtrlanganda yashirish uchun */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 Mahsulotlar ro‘yxati</h1>
+
+        <div class="categories">
+            <h3>Kategoriyalar:</h3>
+            <ul id="categoryList">
+                <li data-category="all">Barchasi</li>
+                {% for category in categories %}
+                    <li data-category="{{ category.name }}">{{ category.name }}</li>
+                {% empty %}
+                    <li>Kategoriyalar yo‘q</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            {% for product in products %}
+                <div class="product-card" data-category="{{ product.category.name }}">
+                    {% if product.img %}
+                        <img src="{{ product.img.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="{% static 'img/no_image.png' %}" alt="No image">
+                    {% endif %}
+                    <h2>{{ product.name }}</h2>
+                    <p>Kategoriya: {{ product.category.name }}</p>
+                    <p class="price">{{ product.price }} so‘m</p>
+                    <p>
+    Manzil: 
+    <a href="{{ product.map_link.map_link }}" target="_blank">
+        {{ product.map_link.name }}
+    </a>
+</p>
+                    
+                </div>
+            {% empty %}
+                <p>Mahsulotlar mavjud emas.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Kategoriya bo‘yicha mahsulotlarni filtrlaymiz
+        const categories = document.querySelectorAll('#categoryList li');
+        const products = document.querySelectorAll('.product-card');
+
+        categories.forEach(cat => {
+            cat.addEventListener('click', () => {
+                const selected = cat.getAttribute('data-category');
+
+                categories.forEach(c => c.style.background = '#007bff');
+                cat.style.background = '#0056b3';
+
+                products.forEach(prod => {
+                    const prodCat = prod.getAttribute('data-category');
+                    if (selected === 'all' || selected === prodCat) {
+                        prod.classList.remove('hidden');
+                    } else {
+                        prod.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
